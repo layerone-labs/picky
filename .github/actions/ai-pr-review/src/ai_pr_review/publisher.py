@@ -51,7 +51,7 @@ def _marker(fingerprint: str) -> str:
 
 def build_inline_comment(finding: Finding) -> str:
     finding = with_fingerprint(finding)
-    parts = [f"**AI review [{finding.severity}]** {finding.title}", "", finding.body]
+    parts = [f"**Picky [{finding.severity}]** {finding.title}", "", finding.body]
     if finding.suggested_fix:
         parts.extend(["", f"Suggested fix: {finding.suggested_fix}"])
     parts.extend(["", _marker(finding.fingerprint)])
@@ -63,7 +63,7 @@ def build_summary_comment(findings: list[Finding], pr_title: str) -> str:
     for finding in findings:
         counts[finding.severity] = counts.get(finding.severity, 0) + 1
     header = [
-        "## AI PR Review",
+        "## Picky",
         "",
         f"Review for: {pr_title}",
         "",
@@ -144,6 +144,8 @@ def publish(
 
     if inline_findings and commit_id:
         review_body = build_summary_comment(publishable, pr_title) if post_summary else "## AI PR Review"
+        if not post_summary:
+            review_body = "## Picky"
         try:
             client.create_pull_review(
                 pr_number,

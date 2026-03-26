@@ -1,6 +1,6 @@
 # AI PR Review Action
 
-Reusable GitHub Action for AI-assisted pull request review.
+Reusable GitHub Action for Picky pull request review.
 
 ## What it does
 

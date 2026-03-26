@@ -1,6 +1,6 @@
 # Picky
 
-Reusable GitHub Action and workflow templates for AI-assisted pull request review.
+Reusable GitHub Action and workflow templates for Picky pull request review.
 
 The review action now auto-detects changed-file languages, expands scoped codebase context, and supports built-in OpenAI-compatible providers with `deepseek` as the default.
 

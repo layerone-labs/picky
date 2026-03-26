@@ -1,4 +1,4 @@
-name: AI PR Review
+name: Picky
 description: Reusable AI-powered pull request review action with provider-agnostic adapter support.
 author: OpenAI
 branding:

@@ -96,7 +96,7 @@ class PublisherTests(unittest.TestCase):
         self.assertEqual(0, len(client.inline_calls))
         self.assertEqual(1, len(client.review_calls))
         self.assertEqual(0, len(client.issue_calls))
-        self.assertIn("AI PR Review", build_summary_comment([finding], "Update logic"))
+        self.assertIn("## Picky", build_summary_comment([finding], "Update logic"))
 
     def test_publish_falls_back_to_summary_when_review_submission_fails(self) -> None:
         finding = Finding(

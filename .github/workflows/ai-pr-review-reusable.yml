@@ -1,4 +1,4 @@
-name: AI PR Review (Reusable)
+name: Picky (Reusable)
 
 on:
   workflow_call:
