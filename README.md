@@ -37,7 +37,10 @@ The easiest way for another repository to adopt Picky is to call the reusable wo
    To publish review text in Chinese, set:
    `review.output.language: zh-CN`
 
-4. Add a workflow like this to the consuming repository at `.github/workflows/picky-review.yml`:
+4. Make sure the organization has a repo named `picky`.
+   The reusable workflow will load the action implementation from `${organization}/picky`.
+
+5. Add a workflow like this to the consuming repository at `.github/workflows/picky-review.yml`:
 
 ```yaml
 name: Picky
@@ -64,10 +67,10 @@ jobs:
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
 ```
 
-5. Open or update a pull request in the consuming repository.
+6. Open or update a pull request in the consuming repository.
    Picky will detect changed-file languages automatically, gather scoped repo context, and post one batched review with inline comments when it finds issues.
 
-If you fork this repo, the reusable workflow resolves its own source automatically. Consumers can call the forked workflow and it will use the matching forked action code without any internal org-name edits.
+Consumer repos do not fall back to `layerone-labs/picky`. They use `${organization}/picky`, so each organization controls its own Picky code and credentials.
 
 ## Local validation
 

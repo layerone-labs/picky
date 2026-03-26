@@ -52,7 +52,7 @@ jobs:
           DEEPSEEK_CODER_MODEL: ${{ vars.DEEPSEEK_CODER_MODEL }}
 ```
 
-When another repository calls the reusable workflow, it automatically checks out the same repo and commit that provided the workflow into the job workspace and runs the bundled action from there. Forks do not need to rewrite internal `owner/repo` references.
+When another repository calls the reusable workflow, it checks out `your-org/picky` and runs the bundled action from there. Organizations should keep the repo name `picky` so consumer repos can pick it up automatically. There is no fallback to another organization's repo.
 
 ## Repository policy file
 

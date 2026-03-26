@@ -73,20 +73,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Resolve Picky workflow source
-        id: picky_source
-        shell: bash
-        run: |
-          workflow_ref="${{ github.workflow_ref }}"
-          repo="${workflow_ref%%/.github/workflows/*}"
-          echo "repository=$repo" >> "$GITHUB_OUTPUT"
-          echo "sha=${{ github.workflow_sha }}" >> "$GITHUB_OUTPUT"
-
-      - name: Check out Picky source
+      - name: Check out Picky source from caller organization
         uses: actions/checkout@v4
         with:
-          repository: ${{ steps.picky_source.outputs.repository }}
-          ref: ${{ steps.picky_source.outputs.sha }}
+          repository: ${{ github.repository_owner }}/picky
           path: picky-source
 
       - name: Run Picky review
