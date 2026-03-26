@@ -68,19 +68,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out caller repository
+      - name: Check out repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Check out Picky source from caller organization
-        uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository_owner }}/picky
-          path: picky-source
-
       - name: Run Picky review
-        uses: ./picky-source/.github/actions/ai-pr-review
+        uses: layerone-labs/picky/.github/actions/ai-pr-review@main
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DEEPSEEK_BASE_URL: ${{ vars.DEEPSEEK_BASE_URL }}

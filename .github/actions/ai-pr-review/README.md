@@ -52,7 +52,7 @@ jobs:
           DEEPSEEK_CODER_MODEL: ${{ vars.DEEPSEEK_CODER_MODEL }}
 ```
 
-When another repository calls the reusable workflow, it checks out `your-org/picky` and runs the bundled action from there. Organizations should keep the repo name `picky` so consumer repos can pick it up automatically. There is no fallback to another organization's repo.
+When another repository calls the reusable workflow, it uses the shared action reference configured in the reusable workflow itself. If another organization forks `picky`, they should update that action reference in their fork to point at their own repository.
 
 ## Repository policy file
 
