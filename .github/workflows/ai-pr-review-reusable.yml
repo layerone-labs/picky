@@ -68,14 +68,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
+      - name: Check out caller repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Run AI PR review
-        uses: layerone-labs/picky/.github/actions/ai-pr-review@main
-        continue-on-error: true
+      - name: Resolve Picky workflow source
+        id: picky_source
+        shell: bash
+        run: |
+          workflow_ref="${{ github.workflow_ref }}"
+          repo="${workflow_ref%%/.github/workflows/*}"
+          echo "repository=$repo" >> "$GITHUB_OUTPUT"
+          echo "sha=${{ github.workflow_sha }}" >> "$GITHUB_OUTPUT"
+
+      - name: Check out Picky source
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ steps.picky_source.outputs.repository }}
+          ref: ${{ steps.picky_source.outputs.sha }}
+          path: .picky-source
+
+      - name: Run Picky review
+        uses: ./.picky-source/.github/actions/ai-pr-review
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DEEPSEEK_BASE_URL: ${{ vars.DEEPSEEK_BASE_URL }}

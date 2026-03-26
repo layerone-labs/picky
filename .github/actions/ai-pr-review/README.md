@@ -52,6 +52,8 @@ jobs:
           DEEPSEEK_CODER_MODEL: ${{ vars.DEEPSEEK_CODER_MODEL }}
 ```
 
+When another repository calls the reusable workflow, it automatically checks out the same repo and commit that provided the workflow. Forks do not need to rewrite internal `owner/repo` references.
+
 ## Repository policy file
 
 Create `.ai-code-review.yml` in the repository root to customize language filtering, scoped context gathering, prompt guidance, and severity defaults.
