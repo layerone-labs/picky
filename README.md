@@ -29,15 +29,12 @@ The easiest way for another repository to adopt Picky is to call the reusable wo
    - `bcp`: `BCP_API_KEY`, `BCP_BASE_URL`, `BCP_CODER_MODEL`
    - `openai`: `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_CODER_MODEL`
 
-2. If `picky` is private, allow reusable workflow access from the consuming repository.
-   In the `picky` repo, go to `Settings` -> `Actions` -> `General` and allow other repositories in the organization to use its reusable workflows.
-
-3. Copy [`.ai-code-review.yml`](.ai-code-review.yml) into the consuming repository root.
+2. Copy [`.ai-code-review.yml`](.ai-code-review.yml) into the consuming repository root.
    Adjust exclude rules or prompt guidance only if the defaults do not fit your repo.
    To publish review text in Chinese, set:
    `review.output.language: zh-CN`
 
-4. Add a workflow like this to the consuming repository at `.github/workflows/picky-review.yml`:
+3. Add a workflow like this to the consuming repository at `.github/workflows/picky-review.yml`:
 
 ```yaml
 name: Picky
@@ -64,7 +61,7 @@ jobs:
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
 ```
 
-5. Open or update a pull request in the consuming repository.
+4. Open or update a pull request in the consuming repository.
    Picky will detect changed-file languages automatically, gather scoped repo context, and post one batched review with inline comments when it finds issues.
 
 Forks work automatically — the reusable workflow parses the caller's workflow file to resolve its own source repository at runtime, so no manual edits are needed after forking.
