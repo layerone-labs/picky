@@ -1,0 +1,39 @@
+name: AI PR Review
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - ready_for_review
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ai-pr-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run AI PR review
+        uses: ./.github/actions/ai-pr-review
+        continue-on-error: true
+        with:
+          provider: openai
+          model: gpt-5.1
+          api_key: ${{ secrets.OPENAI_API_KEY }}
+          config_path: .ai-code-review.yml
+          max_files: 25
+          max_patch_chars: 120000
+          post_summary: true
+          min_severity_to_publish: low

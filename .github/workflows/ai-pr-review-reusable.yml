@@ -1,0 +1,75 @@
+name: AI PR Review (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      provider:
+        description: AI provider to use for review generation.
+        required: false
+        type: string
+        default: openai
+      model:
+        description: Model name to use for the review.
+        required: false
+        type: string
+        default: gpt-5.1
+      config_path:
+        description: Path to the repo review config.
+        required: false
+        type: string
+        default: .ai-code-review.yml
+      max_files:
+        description: Maximum number of changed files to review in one run.
+        required: false
+        type: number
+        default: 25
+      max_patch_chars:
+        description: Maximum patch characters to send to the model.
+        required: false
+        type: number
+        default: 120000
+      post_summary:
+        description: Whether to post a PR summary in addition to inline comments.
+        required: false
+        type: boolean
+        default: true
+      min_severity_to_publish:
+        description: Minimum severity required before publishing a finding.
+        required: false
+        type: string
+        default: low
+    secrets:
+      api_key:
+        description: API key for the selected LLM provider.
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ai-pr-review-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run AI PR review
+        uses: OWNER/picky/.github/actions/ai-pr-review@main
+        continue-on-error: true
+        with:
+          provider: ${{ inputs.provider }}
+          model: ${{ inputs.model }}
+          api_key: ${{ secrets.api_key }}
+          config_path: ${{ inputs.config_path }}
+          max_files: ${{ inputs.max_files }}
+          max_patch_chars: ${{ inputs.max_patch_chars }}
+          post_summary: ${{ inputs.post_summary }}
+          min_severity_to_publish: ${{ inputs.min_severity_to_publish }}

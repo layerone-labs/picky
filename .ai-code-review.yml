@@ -1,0 +1,47 @@
+# Default configuration for the reusable AI PR review action.
+# Keep this file small and portable so other repositories can reuse it as a template.
+
+version: 1
+
+review:
+  paths:
+    include:
+      - "**/*.py"
+      - "**/*.js"
+      - "**/*.jsx"
+      - "**/*.ts"
+      - "**/*.tsx"
+      - "**/*.md"
+      - "**/*.yml"
+      - "**/*.yaml"
+    exclude:
+      - "**/dist/**"
+      - "**/build/**"
+      - "**/coverage/**"
+      - "**/node_modules/**"
+      - "**/__pycache__/**"
+      - "**/*.min.*"
+      - "**/*.map"
+      - ".venv/**"
+  generated:
+    exclude:
+      - "**/*.generated.*"
+      - "**/*.gen.*"
+      - "**/*.snap"
+      - "**/Cargo.lock"
+      - "**/composer.lock"
+      - "**/Gemfile.lock"
+      - "**/package-lock.json"
+      - "**/pnpm-lock.yaml"
+      - "**/poetry.lock"
+      - "**/yarn.lock"
+  limits:
+    max_files: 25
+    max_patch_chars: 120000
+  reporting:
+    min_severity: low
+  prompt:
+    extensions:
+      - "Prioritize correctness, regressions, security, data loss, concurrency, API misuse, missing tests, and maintainability over style nitpicks."
+      - "Only report findings supported by the diff or nearby repository context."
+      - "Treat cross-file interface changes as one system even if the bug appears in only one file."

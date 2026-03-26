@@ -1,0 +1,55 @@
+name: AI PR Review
+
+on:
+  workflow_call:
+    inputs:
+      provider:
+        required: false
+        type: string
+        default: openai
+      model:
+        required: false
+        type: string
+        default: gpt-4.1-mini
+      config_path:
+        required: false
+        type: string
+        default: .ai-code-review.yml
+      max_files:
+        required: false
+        type: string
+        default: "20"
+      max_patch_chars:
+        required: false
+        type: string
+        default: "24000"
+      post_summary:
+        required: false
+        type: string
+        default: "true"
+      min_severity_to_publish:
+        required: false
+        type: string
+        default: low
+    secrets:
+      api_key:
+        required: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/ai-pr-review
+        with:
+          provider: ${{ inputs.provider }}
+          model: ${{ inputs.model }}
+          api_key: ${{ secrets.api_key }}
+          config_path: ${{ inputs.config_path }}
+          max_files: ${{ inputs.max_files }}
+          max_patch_chars: ${{ inputs.max_patch_chars }}
+          post_summary: ${{ inputs.post_summary }}
+          min_severity_to_publish: ${{ inputs.min_severity_to_publish }}

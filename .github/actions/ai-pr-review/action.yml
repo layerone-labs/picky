@@ -1,0 +1,58 @@
+name: AI PR Review
+description: Reusable AI-powered pull request review action with provider-agnostic adapter support.
+author: OpenAI
+branding:
+  icon: shield
+  color: blue
+inputs:
+  provider:
+    description: AI provider to use. OpenAI is implemented first.
+    required: false
+    default: openai
+  model:
+    description: Model name passed to the provider adapter.
+    required: false
+    default: gpt-4.1-mini
+  api_key:
+    description: API key for the selected provider.
+    required: true
+  config_path:
+    description: Path to the YAML review policy file in the repository.
+    required: false
+    default: .ai-code-review.yml
+  max_files:
+    description: Maximum number of changed files to review.
+    required: false
+    default: "20"
+  max_patch_chars:
+    description: Maximum patch characters per model prompt chunk.
+    required: false
+    default: "24000"
+  post_summary:
+    description: Whether to publish a summary comment in addition to inline comments.
+    required: false
+    default: "true"
+  min_severity_to_publish:
+    description: "Minimum severity to publish. Supported values: low, medium, high."
+    required: false
+    default: low
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: |
+        set -euo pipefail
+        python3 -m pip install -r "$GITHUB_ACTION_PATH/requirements.txt"
+        PYTHONPATH="$GITHUB_ACTION_PATH/src" python3 -m ai_pr_review
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_EVENT_PATH: ${{ github.event_path }}
+        INPUT_PROVIDER: ${{ inputs.provider }}
+        INPUT_MODEL: ${{ inputs.model }}
+        INPUT_API_KEY: ${{ inputs.api_key }}
+        INPUT_CONFIG_PATH: ${{ inputs.config_path }}
+        INPUT_MAX_FILES: ${{ inputs.max_files }}
+        INPUT_MAX_PATCH_CHARS: ${{ inputs.max_patch_chars }}
+        INPUT_POST_SUMMARY: ${{ inputs.post_summary }}
+        INPUT_MIN_SEVERITY_TO_PUBLISH: ${{ inputs.min_severity_to_publish }}
