@@ -82,10 +82,14 @@ jobs:
           WREF="${{ github.workflow_ref }}"
           REPO="${WREF%%/.github/*}"
           REF="${WREF##*@}"
+          echo "::debug::workflow_ref=${WREF}"
+          echo "::debug::repo=${REPO} ref=${REF}"
 
-          # Download picky source (works for public repos without extra auth)
+          # Download picky source via GitHub API (works for public repos)
           PICKY_DIR=$(mktemp -d)
-          curl -fsSL "https://github.com/${REPO}/archive/${REF}.tar.gz" | \
+          curl -fsSL \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${REPO}/tarball/${REF}" | \
             tar xz --strip-components=1 -C "$PICKY_DIR"
 
           ACTION_DIR="$PICKY_DIR/.github/actions/ai-pr-review"
