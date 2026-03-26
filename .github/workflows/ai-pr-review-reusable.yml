@@ -73,9 +73,39 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run Picky review
-        uses: layerone-labs/picky/.github/actions/ai-pr-review@main
+      - name: Download and run Picky
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Resolve the picky source repository from the reusable workflow ref
+          WREF="${{ github.workflow_ref }}"
+          REPO="${WREF%%/.github/*}"
+          REF="${WREF##*@}"
+
+          # Download picky source (works for public repos without extra auth)
+          PICKY_DIR=$(mktemp -d)
+          curl -fsSL "https://github.com/${REPO}/archive/${REF}.tar.gz" | \
+            tar xz --strip-components=1 -C "$PICKY_DIR"
+
+          ACTION_DIR="$PICKY_DIR/.github/actions/ai-pr-review"
+
+          # Install dependencies and run review
+          python3 -m pip install -r "$ACTION_DIR/requirements.txt"
+          PYTHONPATH="$ACTION_DIR/src" python3 -m ai_pr_review
         env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+          INPUT_PROVIDER: ${{ inputs.provider }}
+          INPUT_MODEL: ${{ inputs.model }}
+          INPUT_BASE_URL: ${{ inputs.base_url }}
+          INPUT_API_KEY: ${{ secrets.api_key }}
+          INPUT_CONFIG_PATH: ${{ inputs.config_path }}
+          INPUT_MAX_FILES: ${{ inputs.max_files }}
+          INPUT_MAX_PATCH_CHARS: ${{ inputs.max_patch_chars }}
+          INPUT_POST_SUMMARY: ${{ inputs.post_summary }}
+          INPUT_MIN_SEVERITY_TO_PUBLISH: ${{ inputs.min_severity_to_publish }}
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           DEEPSEEK_BASE_URL: ${{ vars.DEEPSEEK_BASE_URL }}
           DEEPSEEK_CODER_MODEL: ${{ vars.DEEPSEEK_CODER_MODEL }}
@@ -85,13 +115,3 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI_BASE_URL: ${{ vars.OPENAI_BASE_URL }}
           OPENAI_CODER_MODEL: ${{ vars.OPENAI_CODER_MODEL }}
-        with:
-          provider: ${{ inputs.provider }}
-          model: ${{ inputs.model }}
-          api_key: ${{ secrets.api_key }}
-          base_url: ${{ inputs.base_url }}
-          config_path: ${{ inputs.config_path }}
-          max_files: ${{ inputs.max_files }}
-          max_patch_chars: ${{ inputs.max_patch_chars }}
-          post_summary: ${{ inputs.post_summary }}
-          min_severity_to_publish: ${{ inputs.min_severity_to_publish }}

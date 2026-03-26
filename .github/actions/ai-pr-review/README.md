@@ -52,7 +52,7 @@ jobs:
           DEEPSEEK_CODER_MODEL: ${{ vars.DEEPSEEK_CODER_MODEL }}
 ```
 
-When another repository calls the reusable workflow, it uses the shared action reference configured in the reusable workflow itself. If another organization forks `picky`, they should update that action reference in their fork to point at their own repository.
+When another repository calls the reusable workflow, the workflow dynamically resolves its own source repository using `github.workflow_ref`, so forks work automatically without any manual edits.
 
 ## Repository policy file
 

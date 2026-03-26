@@ -67,7 +67,7 @@ jobs:
 5. Open or update a pull request in the consuming repository.
    Picky will detect changed-file languages automatically, gather scoped repo context, and post one batched review with inline comments when it finds issues.
 
-If another organization forks this repo, they should update the reusable workflow in their fork to point at their own `owner/picky` action reference.
+Forks work automatically — the reusable workflow dynamically resolves its own source repository at runtime, so no manual edits are needed after forking.
 
 ## Local validation
 
