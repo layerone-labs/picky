@@ -94,7 +94,13 @@ class OrchestratorTests(unittest.TestCase):
                 ]
             }
         )
-        config = ReviewConfig(max_files=5, max_patch_chars=25, context_files=["README.md"], context_max_files=6)
+        config = ReviewConfig(
+            max_files=5,
+            max_patch_chars=25,
+            context_files=["README.md"],
+            context_max_files=6,
+            review_language="zh-CN",
+        )
         pr = PullRequestInfo(number=1, title="Update logic", body="body", head_sha="abc123")
 
         fake_provider = FakeProvider(response)
@@ -117,6 +123,7 @@ class OrchestratorTests(unittest.TestCase):
         self.assertEqual("src/app.py", result.findings[0].path)
         self.assertEqual(2, len(fake_provider.prompts))
         self.assertEqual("python", fake_provider.prompts[0].chunk.language)
+        self.assertEqual("zh-CN", fake_provider.prompts[0].review_language)
         self.assertTrue(any(item.reason == "Repo manifest" for item in fake_provider.prompts[0].repo_context))
         self.assertTrue(any(item.reason == "Imported module" for item in fake_provider.prompts[0].repo_context))
         self.assertIn("README.md", fake_client.requested_files)

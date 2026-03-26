@@ -57,6 +57,23 @@ class PublisherTests(unittest.TestCase):
         fp = extract_fingerprint(body)
         self.assertEqual(finding_fingerprint(finding), fp)
 
+    def test_build_comments_can_be_localized_to_chinese(self) -> None:
+        finding = Finding(
+            path="src/app.py",
+            line=8,
+            severity="high",
+            confidence=0.7,
+            title="标题",
+            body="正文",
+            suggested_fix="修复建议",
+        )
+        inline = build_inline_comment(finding, review_language="zh-CN")
+        summary = build_summary_comment([finding], "测试 PR", review_language="zh-CN")
+        self.assertIn("Picky [高]", inline)
+        self.assertIn("建议修复", inline)
+        self.assertIn("评审对象", summary)
+        self.assertIn("问题数", summary)
+
     def test_dedupe_skips_existing_comment_fingerprints(self) -> None:
         finding = Finding(
             path="src/app.py",
@@ -90,6 +107,7 @@ class PublisherTests(unittest.TestCase):
             pr_title="Update logic",
             post_summary=True,
             min_severity_to_publish="low",
+            review_language="en",
         )
         self.assertEqual(1, result.posted_inline)
         self.assertTrue(result.posted_summary)
@@ -118,6 +136,7 @@ class PublisherTests(unittest.TestCase):
             pr_title="Update logic",
             post_summary=True,
             min_severity_to_publish="low",
+            review_language="en",
         )
         self.assertEqual(0, result.posted_inline)
         self.assertTrue(result.posted_summary)
@@ -142,6 +161,7 @@ class PublisherTests(unittest.TestCase):
             pr_title="Update logic",
             post_summary=True,
             min_severity_to_publish="low",
+            review_language="en",
         )
         self.assertEqual(0, result.posted_inline)
         self.assertTrue(result.posted_summary)

@@ -11,6 +11,7 @@ Focus on correctness, regressions, security, data loss, concurrency, API misuse,
 Ignore style nits unless they hide a bug or meaningful risk.
 Use only evidence from the provided diff and scoped repo context.
 The context may be partial. Reason across files when the evidence supports it, and avoid speculation when context is missing.
+Write the finding title, body, and suggested_fix in the requested review language.
 
 Return JSON only in this exact shape:
 {"findings":[{"path":"relative/path","line":123,"severity":"low|medium|high","confidence":0.0,"title":"short title","body":"detailed explanation","suggested_fix":"optional fix suggestion"}]}
@@ -39,6 +40,7 @@ def build_policy_summary(config: ReviewConfig) -> str:
         f"- max_patch_chars: {config.max_patch_chars}",
         f"- min_severity_to_publish: {config.min_severity_to_publish}",
         f"- post_summary: {config.post_summary}",
+        f"- review_language: {config.review_language}",
     ]
     if config.prompt_extensions:
         lines.extend(["- repo guidance:", indent(config.prompt_extensions, "  ")])
@@ -51,10 +53,12 @@ def build_prompt(
     chunk: ReviewChunk,
     repo_context: list[RepoContextFile],
     policy_summary: str,
+    review_language: str,
 ) -> str:
     sections = [
         f"Pull request title: {pr_title}",
         f"Pull request body: {pr_body or '<none>'}",
+        f"Requested review language: {'Chinese (Simplified)' if review_language == 'zh-CN' else 'English'}",
         f"Changed file: {chunk.file_path}",
         f"Detected language: {chunk.language or '<unknown>'}",
         f"Line window: {chunk.start_line or 'n/a'}-{chunk.end_line or 'n/a'}",

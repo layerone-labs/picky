@@ -171,6 +171,7 @@ class OpenAIProvider(ProviderAdapter):
             chunk=prompt.chunk,
             repo_context=prompt.repo_context,
             policy_summary=prompt.policy_summary,
+            review_language=getattr(prompt, "review_language", "en"),
         )
         if self._preferred_api == "chat_completions":
             return self._review_via_chat_completions(user_prompt)

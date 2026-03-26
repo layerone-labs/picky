@@ -7,6 +7,34 @@ from .github_client import GitHubClient, GitHubComment
 from .models import Finding, SEVERITY_ORDER
 
 FINGERPRINT_PREFIX = "<!-- ai-pr-review:"
+LOCALIZED_STRINGS = {
+    "en": {
+        "inline_prefix": "Picky",
+        "summary_title": "## Picky",
+        "review_for": "Review for",
+        "findings": "Findings",
+        "high": "high",
+        "medium": "medium",
+        "low": "low",
+        "path": "Path",
+        "line": "Line",
+        "confidence": "Confidence",
+        "suggested_fix": "Suggested fix",
+    },
+    "zh-CN": {
+        "inline_prefix": "Picky",
+        "summary_title": "## Picky",
+        "review_for": "评审对象",
+        "findings": "问题数",
+        "high": "高",
+        "medium": "中",
+        "low": "低",
+        "path": "文件",
+        "line": "行号",
+        "confidence": "置信度",
+        "suggested_fix": "建议修复",
+    },
+}
 
 
 @dataclass(slots=True)
@@ -49,53 +77,64 @@ def _marker(fingerprint: str) -> str:
     return f"{FINGERPRINT_PREFIX}fingerprint={fingerprint} -->"
 
 
-def build_inline_comment(finding: Finding) -> str:
+def _strings(review_language: str) -> dict[str, str]:
+    return LOCALIZED_STRINGS.get(review_language, LOCALIZED_STRINGS["en"])
+
+
+def _severity_label(severity: str, review_language: str) -> str:
+    labels = _strings(review_language)
+    return labels.get(severity, severity)
+
+
+def build_inline_comment(finding: Finding, review_language: str = "en") -> str:
     finding = with_fingerprint(finding)
-    parts = [f"**Picky [{finding.severity}]** {finding.title}", "", finding.body]
+    labels = _strings(review_language)
+    parts = [f"**{labels['inline_prefix']} [{_severity_label(finding.severity, review_language)}]** {finding.title}", "", finding.body]
     if finding.suggested_fix:
-        parts.extend(["", f"Suggested fix: {finding.suggested_fix}"])
+        parts.extend(["", f"{labels['suggested_fix']}: {finding.suggested_fix}"])
     parts.extend(["", _marker(finding.fingerprint)])
     return "\n".join(parts)
 
 
-def build_summary_comment(findings: list[Finding], pr_title: str) -> str:
+def build_summary_comment(findings: list[Finding], pr_title: str, review_language: str = "en") -> str:
+    labels = _strings(review_language)
     counts = {severity: 0 for severity in SEVERITY_ORDER}
     for finding in findings:
         counts[finding.severity] = counts.get(finding.severity, 0) + 1
     header = [
-        "## Picky",
+        labels["summary_title"],
         "",
-        f"Review for: {pr_title}",
+        f"{labels['review_for']}: {pr_title}",
         "",
-        f"Findings: {len(findings)}",
-        f"- high: {counts.get('high', 0)}",
-        f"- medium: {counts.get('medium', 0)}",
-        f"- low: {counts.get('low', 0)}",
+        f"{labels['findings']}: {len(findings)}",
+        f"- {labels['high']}: {counts.get('high', 0)}",
+        f"- {labels['medium']}: {counts.get('medium', 0)}",
+        f"- {labels['low']}: {counts.get('low', 0)}",
         "",
     ]
     for finding in findings:
         finding = with_fingerprint(finding)
         header.extend(
             [
-                f"### {finding.title} ({finding.severity})",
-                f"- Path: `{finding.path}`",
-                f"- Line: `{finding.line}`" if finding.line is not None else "- Line: n/a",
-                f"- Confidence: `{finding.confidence:.2f}`",
+                f"### {finding.title} ({_severity_label(finding.severity, review_language)})",
+                f"- {labels['path']}: `{finding.path}`",
+                f"- {labels['line']}: `{finding.line}`" if finding.line is not None else f"- {labels['line']}: n/a",
+                f"- {labels['confidence']}: `{finding.confidence:.2f}`",
                 finding.body,
             ]
         )
         if finding.suggested_fix:
-            header.extend(["", f"Suggested fix: {finding.suggested_fix}"])
+            header.extend(["", f"{labels['suggested_fix']}: {finding.suggested_fix}"])
         header.extend(["", _marker(finding.fingerprint), ""])
     return "\n".join(header).strip()
 
 
-def build_review_payload_comment(finding: Finding) -> dict[str, str | int]:
+def build_review_payload_comment(finding: Finding, review_language: str = "en") -> dict[str, str | int]:
     return {
         "path": finding.path,
         "line": int(finding.line or 0),
         "side": "RIGHT",
-        "body": build_inline_comment(finding),
+        "body": build_inline_comment(finding, review_language=review_language),
     }
 
 
@@ -127,6 +166,7 @@ def publish(
     pr_title: str,
     post_summary: bool,
     min_severity_to_publish: str,
+    review_language: str = "en",
 ) -> PublishResult:
     result = PublishResult()
     threshold = SEVERITY_ORDER[min_severity_to_publish]
@@ -143,24 +183,34 @@ def publish(
     inline_count = len(inline_findings)
 
     if inline_findings and commit_id:
-        review_body = build_summary_comment(publishable, pr_title) if post_summary else "## AI PR Review"
+        review_body = (
+            build_summary_comment(publishable, pr_title, review_language=review_language)
+            if post_summary
+            else _strings(review_language)["summary_title"]
+        )
         if not post_summary:
-            review_body = "## Picky"
+            review_body = _strings(review_language)["summary_title"]
         try:
             client.create_pull_review(
                 pr_number,
                 commit_id,
                 review_body,
-                [build_review_payload_comment(finding) for finding in inline_findings],
+                [build_review_payload_comment(finding, review_language=review_language) for finding in inline_findings],
             )
             result.posted_inline = inline_count
             result.posted_summary = post_summary
         except Exception:
-            client.create_issue_comment(pr_number, build_summary_comment(publishable, pr_title))
+            client.create_issue_comment(
+                pr_number,
+                build_summary_comment(publishable, pr_title, review_language=review_language),
+            )
             result.posted_summary = True
             result.posted_inline = 0
     elif publishable and post_summary:
-        client.create_issue_comment(pr_number, build_summary_comment(publishable, pr_title))
+        client.create_issue_comment(
+            pr_number,
+            build_summary_comment(publishable, pr_title, review_language=review_language),
+        )
         result.posted_summary = True
         result.posted_inline = 0
     elif summary_findings and not post_summary:

@@ -58,6 +58,7 @@ class ReviewPrompt:
     repo_context: list[RepoContextFile]
     policy_summary: str
     model: str
+    review_language: str = "en"
 
 
 @dataclass(slots=True)

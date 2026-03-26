@@ -64,6 +64,8 @@ The supported schema matches the nested structure used by the repo template:
 version: 1
 
 review:
+  output:
+    language: en
   languages:
     mode: auto
     review_unknown_text: false
@@ -97,5 +99,10 @@ Provider-native env names:
 - `deepseek`: `DEEPSEEK_API_KEY`, `DEEPSEEK_BASE_URL`, `DEEPSEEK_CODER_MODEL`
 - `bcp`: `BCP_API_KEY`, `BCP_BASE_URL`, `BCP_CODER_MODEL`
 - `openai`: `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_CODER_MODEL`
+
+Review output language:
+
+- `review.output.language: en` keeps review titles, bodies, and published comment labels in English
+- `review.output.language: zh-CN` requests Chinese review output and localizes published comment labels
 
 Legacy flat keys like `include_paths` and `max_files` are still accepted for compatibility, but the nested schema above is the documented shape.

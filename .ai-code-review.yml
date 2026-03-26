@@ -4,6 +4,8 @@
 version: 1
 
 review:
+  output:
+    language: en
   languages:
     mode: auto
     review_unknown_text: false

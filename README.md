@@ -34,6 +34,8 @@ The easiest way for another repository to adopt Picky is to call the reusable wo
 
 3. Copy [.ai-code-review.yml](/Users/kainan/projects/picky/.ai-code-review.yml) into the consuming repository root.
    Adjust exclude rules or prompt guidance only if the defaults do not fit your repo.
+   To publish review text in Chinese, set:
+   `review.output.language: zh-CN`
 
 4. Add a workflow like this to the consuming repository at `.github/workflows/picky-review.yml`:
 

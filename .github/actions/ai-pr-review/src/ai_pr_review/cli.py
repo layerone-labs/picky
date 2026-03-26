@@ -69,6 +69,7 @@ def main() -> int:
         pr_title=pr_info.title,
         post_summary=config.post_summary,
         min_severity_to_publish=config.min_severity_to_publish,
+        review_language=config.review_language,
     )
 
     output_path = os.environ.get("GITHUB_OUTPUT")

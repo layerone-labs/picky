@@ -19,6 +19,8 @@ class ConfigTests(unittest.TestCase):
 version: 1
 
 review:
+  output:
+    language: zh-CN
   paths:
     include:
       - "**/*.py"
@@ -62,6 +64,7 @@ review:
         self.assertEqual(["**/*.generated.*", "**/*.snap"], config.generated_paths)
         self.assertEqual(["python", "javascript"], config.include_languages)
         self.assertEqual("python", config.extension_overrides[".foo"])
+        self.assertEqual("zh-CN", config.review_language)
         self.assertEqual(5, config.context_max_files)
         self.assertEqual(4096, config.context_max_bytes)
         self.assertFalse(config.context_include_tests)

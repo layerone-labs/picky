@@ -119,6 +119,7 @@ def run_review(
             repo_context=repo_context,
             policy_summary=policy_summary,
             model=provider_settings.model,
+            review_language=config.review_language,
         )
         raw = provider.review(prompt)
         try:

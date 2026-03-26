@@ -97,6 +97,7 @@ class ReviewConfig:
     context_include_tests: bool = True
     context_include_imports: bool = True
     context_include_repo_files: bool = True
+    review_language: str = "en"
     prompt_extensions: str = ""
     max_files: int = 20
     max_patch_chars: int = 24000
@@ -315,6 +316,7 @@ def load_review_config(
                 prompt = review.get("prompt") if isinstance(review.get("prompt"), dict) else {}
                 languages = review.get("languages") if isinstance(review.get("languages"), dict) else {}
                 context = review.get("context") if isinstance(review.get("context"), dict) else {}
+                output = review.get("output") if isinstance(review.get("output"), dict) else {}
 
                 config.include_paths = _split_list(
                     paths.get("include")
@@ -365,6 +367,12 @@ def load_review_config(
                     context.get("include_repo_files"),
                     config.context_include_repo_files,
                 )
+                config.review_language = str(
+                    output.get("language")
+                    or review.get("review_language")
+                    or review.get("locale")
+                    or config.review_language
+                ).strip().lower() or "en"
                 extensions = prompt.get("extensions") if isinstance(prompt.get("extensions"), list) else prompt.get("extensions")
                 if extensions is None:
                     extensions = review.get("prompt_extensions") or review.get("prompt")
@@ -405,5 +413,9 @@ def load_review_config(
         config.language_mode = "auto"
     if config.context_mode not in {"scoped"}:
         config.context_mode = "scoped"
+    if config.review_language in {"zh", "zh-cn", "zh_hans", "chinese", "cn"}:
+        config.review_language = "zh-CN"
+    else:
+        config.review_language = "en"
 
     return config
