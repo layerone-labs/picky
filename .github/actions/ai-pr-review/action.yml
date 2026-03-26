@@ -6,17 +6,17 @@ branding:
   color: blue
 inputs:
   provider:
-    description: AI provider to use. Supported providers: deepseek, bcp, openai.
+    description: "AI provider to use. Supported providers: deepseek, bcp, openai."
     required: false
     default: deepseek
   model:
-    description: Model name passed to the provider adapter. Falls back to provider-specific env vars.
+    description: "Model name passed to the provider adapter. Falls back to provider-specific env vars."
     required: false
   base_url:
-    description: Override the provider base URL. Falls back to provider-specific env vars.
+    description: "Override the provider base URL. Falls back to provider-specific env vars."
     required: false
   api_key:
-    description: API key for the selected provider. Optional when a provider-native env var is available.
+    description: "API key for the selected provider. Optional when a provider-native env var is available."
     required: false
   config_path:
     description: Path to the YAML review policy file in the repository.

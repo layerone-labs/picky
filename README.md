@@ -19,7 +19,7 @@ The review action now auto-detects changed-file languages, expands scoped codeba
 3. Either:
    - copy the PR workflow pattern from `.github/workflows/ai-pr-review.yml`, or
    - call `.github/workflows/ai-pr-review-reusable.yml` from that repository.
-4. Replace `OWNER/picky` in reusable workflow references after this repo has a real GitHub remote.
+4. Use `layerone-labs/picky` in reusable workflow references, or pin to a specific commit SHA or tag for stability.
 
 ## Local validation
 
